@@ -1,0 +1,22 @@
+﻿生成启动时间为 2015/4/6 星期一 22:44:48。
+     1>项目“C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\escape\escape.vcxproj”在节点 2 上(Rebuild 个目标)。
+     1>_MASM:
+         Assembling escape.asm...
+         cmd.exe /C "C:\Users\Administrator\AppData\Local\Temp\tmpdf9c8e249eb04b2bb19a559e6d294638.cmd"
+         ml.exe /c /nologo /Zi /Fo"Debug\escape.obj" /Fl"escape.lst" /I "D:\masm32\include" /I "C:\Irvine" /W3 /errorReport:prompt  /Taescape.asm
+     1>escape.asm(103): warning A6004: procedure argument or local not referenced : @stPs
+     1>escape.asm(103): warning A6004: procedure argument or local not referenced : @stRect
+     1>escape.asm(103): warning A6004: procedure argument or local not referenced : @hDc
+     1>escape.asm(416): warning A6004: procedure argument or local not referenced : hWnd
+     1>escape.asm(541): warning A6004: procedure argument or local not referenced : hWnd
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"Debug\escape.res" escape.rc 
+       Link:
+         D:\programmes\visual studio\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\Debug\escape.exe" /INCREMENTAL /NOLOGO /LIBPATH:D:\masm32\lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\Debug\escape.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\Debug\escape.lib" /MACHINE:X86 /SAFESEH:NO Debug\escape.res
+         Debug\escape.obj
+         escape.vcxproj -> C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\Debug\escape.exe
+     1>已完成生成项目“C:\Users\Administrator\Desktop\新建文件夹 (2)\escape\escape\escape.vcxproj”(Rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.53
