@@ -493,42 +493,42 @@ TEMP4:
 ;-------------------------------------------------------------
 ;move person height
 ;-------------------------------------------------------------
-	mov ecx, playerNum
-PM:
-	push ecx
-	mov eax, playerNum
-	sub eax, ecx
-	mov personInx, eax
-	.IF personJumpTime[eax*4] != 0; y = ut - at*t/2
-		mov ebx,personInx
-		mov eax, personJumpTime[ebx*4]
-		mov ebx, accelerateSpeed
-		mul ebx
-		mov ebx, 2
-		mul ebx
-		.IF eax >= personJumpSpeed   ; person has touch ground
-			mov ebx, personInx
-			mov personJumpTime[ebx*4], 0
-			mov playerPos[ebx*4], 0
-		.ELSE                         ;person is in the sky,  y = ut - at*t/2
-			mov eax, personJumpSpeed
-			mov ebx, personInx
-			mov ecx, personJumpTime[ebx*4]
-			mul ecx
-			mov ebx, eax
-			mov ecx, personInx
-			mov eax, personJumpTime[ecx*4]
-			mul eax
-			mov ecx, accelerateSpeed
-			mul ecx
-			mov edx, 0
-			mov ecx, 2
-			div ecx
-			sub ebx, eax
-			mov eax, personInx
-			mov playerPos[eax*4], ebx
-		.ENDIF
-	.ENDIF
+;	mov ecx, playerNum
+;PM:
+;	push ecx
+;	mov eax, playerNum
+;	sub eax, ecx
+;	mov personInx, eax
+;	.IF personJumpTime[eax*4] != 0; y = ut - at*t/2
+;		mov ebx,personInx
+;		mov eax, personJumpTime[ebx*4]
+;		mov ebx, accelerateSpeed
+;		mul ebx
+;		mov ebx, 2
+;		mul ebx
+;		.IF eax >= personJumpSpeed   ; person has touch ground
+;			mov ebx, personInx
+;			mov personJumpTime[ebx*4], 0
+;			mov playerPos[ebx*4], 0
+;		.ELSE                         ;person is in the sky,  y = ut - at*t/2
+;			mov eax, personJumpSpeed
+;			mov ebx, personInx
+;			mov ecx, personJumpTime[ebx*4]
+;			mul ecx
+;			mov ebx, eax
+;			mov ecx, personInx
+;			mov eax, personJumpTime[ecx*4]
+;			mul eax
+;			mov ecx, accelerateSpeed
+;			mul ecx
+;			mov edx, 0
+;			mov ecx, 2
+;			div ecx
+;			sub ebx, eax
+;			mov eax, personInx
+;;			mov playerPos[eax*4], ebx
+;		.ENDIF
+;	.ENDIF
 	.if ring == 0
 		mov ring, 1
 	.elseif ring == 1
@@ -551,11 +551,13 @@ getNextState ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 keydown_Proc PROC, hWnd:DWORD
 ;逻辑代码安排在这部分
+	sub playerPos, 2
+
 	.IF personJumpTime[0] == 0
 		mov personJumpTime[0], 1
 		mov personJumpTime[4], 1
 	.ENDIF
-	mov death, 1
+;	mov death, 1
 	;测试代码
 ;********************************************************************
 
@@ -640,6 +642,7 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDP
 
 	invoke SelectObject, hDcPlayer, hBmpObj
 	mov ebx, PlayerPosX
+
 	mov eax, bWidth
 	sub ebx, eax
 	mov eax, GNDPOS
