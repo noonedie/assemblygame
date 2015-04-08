@@ -20,8 +20,8 @@ include data.inc
 ; 数据段
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 .data
-playerPos  DWORD	playerNum	DUP(10) ;玩家的高度信息
-personJumpTime DWORD playerNum    DUP(1) ;玩家跳到空中的时间
+playerPos  DWORD	playerNum	DUP(0) ;玩家的高度信息
+personJumpTime DWORD playerNum    DUP(0) ;玩家跳到空中的时间
 gndPos     DWORD	playerNum	DUP(?) ;地面的信息
 wallPos	   DWORD	wallNum*playerNum		DUP(?) ;墙的水平位置信息
 wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息

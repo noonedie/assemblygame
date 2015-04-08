@@ -24,5 +24,5 @@ wallMaxHeight = 40
 moveSpeed	  =   4
 wallSafeDistance   = 150
 wallGenerateChance = 23
-personJumpSpeed  =  10
+personJumpSpeed  =  20
 accelerateSpeed  =  2
