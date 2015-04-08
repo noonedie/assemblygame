@@ -31,6 +31,7 @@ randomSeed DWORD    0  ;随机数种子
 
 
 ;pydata
+char WPARAM 20h
 Click_X	   DWORD  0					;点击的x坐标
 BYTE 0
 Click_Y    DWORD  0					;点击的y坐标
@@ -99,8 +100,14 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 			invoke	DestroyWindow,hWinMain
 			invoke	PostQuitMessage,NULL
 ;********************************************************************
-		.elseif	eax ==	WM_KEYDOWN 
+		.elseif	eax ==	WM_CHAR
+			push wParam
+			pop char
 			invoke	keydown_Proc, hWinMain
+
+;********************************************************************
+;		.elseif	eax ==	WM_KEYDOWN 
+;			invoke	keydown_Proc, hWinMain
 ;********************************************************************
 		.elseif eax == WM_LBUTTONDOWN					;鼠标事件
 			invoke GetWindowRect, hWnd, ADDR @stRect
@@ -493,42 +500,50 @@ TEMP4:
 ;-------------------------------------------------------------
 ;move person height
 ;-------------------------------------------------------------
-;	mov ecx, playerNum
-;PM:
-;	push ecx
-;	mov eax, playerNum
-;	sub eax, ecx
-;	mov personInx, eax
-;	.IF personJumpTime[eax*4] != 0; y = ut - at*t/2
-;		mov ebx,personInx
-;		mov eax, personJumpTime[ebx*4]
-;		mov ebx, accelerateSpeed
-;		mul ebx
-;		mov ebx, 2
-;		mul ebx
-;		.IF eax >= personJumpSpeed   ; person has touch ground
-;			mov ebx, personInx
-;			mov personJumpTime[ebx*4], 0
-;			mov playerPos[ebx*4], 0
-;		.ELSE                         ;person is in the sky,  y = ut - at*t/2
-;			mov eax, personJumpSpeed
-;			mov ebx, personInx
-;			mov ecx, personJumpTime[ebx*4]
-;			mul ecx
-;			mov ebx, eax
-;			mov ecx, personInx
-;			mov eax, personJumpTime[ecx*4]
-;			mul eax
-;			mov ecx, accelerateSpeed
-;			mul ecx
-;			mov edx, 0
-;			mov ecx, 2
-;			div ecx
-;			sub ebx, eax
-;			mov eax, personInx
-;;			mov playerPos[eax*4], ebx
-;		.ENDIF
-;	.ENDIF
+	mov ecx, playerNum
+PM:
+	push ecx
+	mov eax, playerNum
+	sub eax, ecx
+	mov personInx, eax
+	.IF personJumpTime[eax*4] != 0; y = ut - at*t/2
+
+		add personJumpTime[eax*4], 1
+	
+		mov ebx,personInx
+		mov eax, personJumpTime[ebx*4]
+		mov ebx, accelerateSpeed
+		mul ebx
+		;mov ebx, 2
+		;mul ebx
+		.IF eax >= 2*personJumpSpeed   ; person has touch ground
+			mov ebx, personInx
+			mov personJumpTime[ebx*4], 0
+			mov playerPos[ebx*4], 0
+		.ELSE                         ;person is in the sky,  y = ut - at*t/2
+			mov eax, personJumpSpeed
+			mov ebx, personInx
+			mov ecx, personJumpTime[ebx*4]
+			mul ecx
+			mov ebx, eax
+			mov ecx, personInx
+			mov eax, personJumpTime[ecx*4]
+			mov edx, eax
+			mul edx ; t^2
+			mov ecx, accelerateSpeed
+			mul ecx
+			mov edx, 0
+			mov ecx, 2
+			div ecx
+			sub ebx, eax
+			mov eax, personInx
+			mov playerPos[eax*4], ebx
+		.ENDIF
+	.ENDIF
+	pop ecx
+	dec ecx
+	jnz PM
+
 	.if ring == 0
 		mov ring, 1
 	.elseif ring == 1
@@ -551,13 +566,12 @@ getNextState ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 keydown_Proc PROC, hWnd:DWORD
 ;逻辑代码安排在这部分
-	sub playerPos, 2
-
-	.IF personJumpTime[0] == 0
+	.IF char == 'j' && personJumpTime[0] == 0	
 		mov personJumpTime[0], 1
+	.ENDIF
+	.IF char == 'k'	&& personJumpTime[4] == 0
 		mov personJumpTime[4], 1
 	.ENDIF
-;	mov death, 1
 	;测试代码
 ;********************************************************************
 
@@ -648,7 +662,7 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDP
 	mov eax, GNDPOS
 	sub eax, bHeight
 	sub eax, PlayerPosY
-	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCCOPY
+	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND 
 	invoke DeleteObject, hBmpObj
 	invoke DeleteDC, hDcPlayer
 
