@@ -249,8 +249,8 @@ L2:
 		.else
 			mov bmp, DIE_4
 		.endif
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos, bmp, dieWidth, dieHeight
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos+4, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos, playerPos, gndPos, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
 		;ËÀÍöÒôÐ§
 		.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
@@ -265,8 +265,8 @@ L2:
 		.elseif ring == 2
 			mov bmp, PEOPLE_3
 		.endif
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos, bmp, pWidth, pHeight
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos+4, bmp, pWidth, pHeight
+		invoke DrawPlayer, hInstance, Dc, pPos, playerPos, gndPos, bmp, pWidth, pHeight
+		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, pWidth, pHeight
 	.endif
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
@@ -363,6 +363,8 @@ _init PROC
 	
 	INVOKE mciSendString,ADDR BGMName, NULL, 0, NULL
 	INVOKE mciSendString,ADDR playTextBGM, NULL, 0, NULL
+	mov playerPos, 0
+	mov playerPos+4, 0
 	mov gndPos, (winHeight - 100)/2
 	mov gndPos+4, winHeight - 100
 	mov ring, 0
@@ -621,7 +623,7 @@ DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 DrawWall ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPos:DWORD, GNDPOS:DWORD, hBitMap:DWORD, bWidth:DWORD, bHeight:DWORD
+DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDPOS:DWORD, hBitMap:DWORD, bWidth:DWORD, bHeight:DWORD
 	LOCAL hDcPlayer:DWORD
 	;LOCAL hBmpPlayer:DWORD
 	LOCAL hBmpObj:DWORD
@@ -632,14 +634,12 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPos:DWORD, GNDPOS:DWORD, hBitMap:D
 	mov hBmpObj, eax
 
 	invoke SelectObject, hDcPlayer, hBmpObj
-	mov ebx, PlayerPos
-	mov edx, 0
+	mov ebx, PlayerPosX
 	mov eax, bWidth
-	mov ecx, 2
-	div ecx
 	sub ebx, eax
 	mov eax, GNDPOS
 	sub eax, bHeight
+	sub eax, PlayerPosY
 	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCCOPY
 	invoke DeleteObject, hBmpObj
 	invoke DeleteDC, hDcPlayer

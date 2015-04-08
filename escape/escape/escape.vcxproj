@@ -61,7 +61,7 @@
       <AdditionalLibraryDirectories>D:\masm32\lib</AdditionalLibraryDirectories>
     </Link>
     <MASM>
-      <IncludePaths>D:\masm32\include;C:\Irvine;%(IncludePaths)</IncludePaths>
+      <IncludePaths>C:\masm32\include;C:\Irvine;%(IncludePaths)</IncludePaths>
       <AssembledCodeListingFile>$(ProjectName).lst</AssembledCodeListingFile>
     </MASM>
   </ItemDefinitionGroup>
