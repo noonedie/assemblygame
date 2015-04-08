@@ -100,6 +100,7 @@
     <Image Include="die2.bmp" />
     <Image Include="die3.bmp" />
     <Image Include="die4.bmp" />
+    <Image Include="mainmenu.bmp" />
     <Image Include="people_1.bmp" />
     <Image Include="people_2.bmp" />
     <Image Include="people_3.bmp" />
