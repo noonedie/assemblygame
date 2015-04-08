@@ -80,17 +80,17 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 
 		mov	eax,uMsg
 ;********************************************************************
-		.if	eax ==	WM_PAINT && scene == 1
-			invoke GetTickCount
-			push eax
-			sub eax, timeStamp
-			.if eax > 50
-				invoke	getNextState, hWinMain
-				pop timeStamp
-			.endif
-			invoke Draw, hWinMain
+;.if	eax ==	WM_PAINT && scene == 1
+;			invoke GetTickCount
+;			push eax
+;			sub eax, timeStamp
+;			.if eax > 50
+;				invoke	getNextState, hWinMain
+;				pop timeStamp
+;			.endif
+;			invoke Draw, hWinMain
 ;********************************************************************
-		.ELSEIF uMsg == WM_TIMER && scene == 1
+		.IF uMsg == WM_TIMER && scene == 1
 			invoke getNextState, hWinMain
 			invoke Draw, hWinMain
 ;********************************************************************
@@ -249,8 +249,8 @@ L2:
 		.else
 			mov bmp, DIE_4
 		.endif
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos, bmp, dieWidth, dieHeight
-		invoke DrawPlayer, hInstance, Dc, pPos, gndPos+4, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos, gndPos, bmp, dieWidth, dieHeight-10
+		invoke DrawPlayer, hInstance, Dc, pPos, gndPos+4, bmp, dieWidth, dieHeight-10
 		;À¿Õˆ“Ù–ß
 		.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
@@ -536,7 +536,15 @@ PM:
 	.else
 		mov ring, 0
 	.endif
-
+	;À¿Õˆ∂Øª≠
+	.if death == 1
+		mov eax, die_action
+		inc eax
+		mov die_action, eax
+		.if die_action >= 3 
+		mov die_action, 3
+		.endif
+	.endif
 	ret
 getNextState ENDP
 
@@ -547,10 +555,9 @@ keydown_Proc PROC, hWnd:DWORD
 		mov personJumpTime[0], 1
 		mov personJumpTime[4], 1
 	.ENDIF
-;≤‚ ‘¥˙¬Î
+	mov death, 1
+	;≤‚ ‘¥˙¬Î
 ;********************************************************************
-;	mov death, 1
-;	mov ecx, wallNum
 
 	;Ã¯‘æ“Ù–ßµƒ≤•∑≈
 ;	pusha
@@ -640,7 +647,7 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPos:DWORD, GNDPOS:DWORD, hBitMap:D
 	sub ebx, eax
 	mov eax, GNDPOS
 	sub eax, bHeight
-	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCCOPY
+	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0,SRCAND
 	invoke DeleteObject, hBmpObj
 	invoke DeleteDC, hDcPlayer
 
