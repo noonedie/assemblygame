@@ -21,7 +21,7 @@ FREQUENCY   equ 50
 TIMERID		equ 123
 ;------------------------
 wallMaxHeight = 40
-moveSpeed	  =   4
+moveSpeed	  =  8 
 wallSafeDistance   = 150
 wallGenerateChance = 23
 personJumpSpeed  =  20
