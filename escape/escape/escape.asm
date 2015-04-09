@@ -29,7 +29,6 @@ ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志
 randomSeed DWORD    0  ;随机数种子
 
-
 ;pydata
 char WPARAM 20h
 Click_X	   DWORD  0					;点击的x坐标
@@ -56,7 +55,7 @@ hInstance	dd		?
 hWinMain	dd		?
 hDc         dd      ?
 hCurrentBmp dd      ?
-hPen		dd		?
+;hPen		dd		?
 hBrush		dd		?
 timeStamp   dd		?
 
@@ -91,7 +90,7 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 ;			.endif
 ;			invoke Draw, hWinMain
 ;********************************************************************
-		.IF uMsg == WM_TIMER && scene == 1
+		.IF uMsg == WM_TIMER
 			invoke getNextState, hWinMain
 			invoke Draw, hWinMain
 ;********************************************************************
@@ -127,7 +126,7 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 			mov Click_Y, edx
 			inc eax
 			;鼠标事件处理
-;			invoke	  MessageBox, 0, ADDR Click_X, ADDR Click_Y, MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2 
+			;invoke	  MessageBox, 0, ADDR Click_X, ADDR Click_Y, MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2 
 			invoke processMouseEvent
 
 ;********************************************************************
@@ -177,13 +176,6 @@ _WinMain	proc
 		invoke	ShowWindow,hWinMain,SW_SHOWNORMAL
 		invoke	UpdateWindow,hWinMain
 		invoke SetTimer, hWinMain, TIMERID,FREQUENCY,NULL
-;********************************************************************
-; 主菜单页面
-;********************************************************************
-MainMenu:
-	pusha
-	invoke DrawMainMenu, hWinMain
-	popa
 
 
 ;********************************************************************
@@ -206,7 +198,108 @@ Draw PROC, hWnd:HWND
 	LOCAL tmpBitmap:DWORD
 	LOCAL bmp:DWORD
 
+;********************************************************************
+; 主菜单页面
+;********************************************************************
+MainMenu:
+	.if scene == 0
+		invoke DrawMainMenu, hWnd
+	.elseif scene == 1
+		invoke DrawPlayProc, hWnd
+	.else
+		invoke DrawHelp, hWnd
+	.endif
+	ret
+Draw ENDP
 
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+processMouseEvent PROC
+	pusha
+	.if scene == 0 ;主菜单界面
+		invoke clickPosition, 140,164,413,243
+		.if eax == 1
+			mov scene,1;点击游戏开始
+		.endif
+		invoke clickPosition, 140,273,413,349
+		.if  eax == 1
+			mov scene,2;点击帮助界面
+		.endif
+	.elseif scene == 2;帮助界面
+		invoke clickPosition, 440,50,550,90
+		.if eax == 1
+			mov scene, 0
+		.endif
+	.endif
+	popa
+	ret
+processMouseEvent ENDP
+
+clickPosition PROC left: DWORD, top: DWORD, right: DWORD, bottom: DWORD
+	mov eax, 0
+	mov ebx, left
+	mov ecx, right
+	.IF Click_X > ebx && Click_X < ecx
+		mov ebx, top
+		mov ecx, bottom
+		.IF Click_Y > ebx && Click_Y < ecx
+			mov eax, 1
+		.ENDIF
+	.ENDIF
+	ret
+clickPosition ENDP
+
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DrawMainMenu PROC, hWnd:HWND
+	LOCAL Dc:DWORD
+	LOCAL Dc2:DWORD
+	LOCAL @hDC:DWORD
+	LOCAL tmpBitmap:DWORD
+	LOCAL bmp:DWORD
+
+	LOCAL hDcPlayer:DWORD
+	;LOCAL hBmpPlayer:DWORD
+	LOCAL hBmpObj:DWORD
+
+	invoke GetDC, hWnd
+	mov @hDC, eax
+	invoke CreateCompatibleDC, @hDC
+	mov Dc, eax
+	invoke CreateCompatibleBitmap,@hDC, winWidth, winHeight
+	mov tmpBitmap, eax
+	invoke SelectObject,Dc, tmpBitmap
+;clear background
+	invoke DeleteObject, hBrush
+	invoke CreateSolidBrush, WHITE_BRUSH
+	mov hBrush, eax
+	invoke Rectangle, Dc, 0, 0, winWidth, winHeight
+;Draw MainMenu 
+;********************************************************************
+	mov bmp, MAIN_MENU
+
+	invoke CreateCompatibleDC, Dc
+	mov hDcPlayer, eax
+	invoke LoadBitmap, hInstance, bmp
+	mov hBmpObj, eax
+
+	invoke SelectObject, hDcPlayer, hBmpObj
+
+	invoke BitBlt, Dc, 0, 0, winWidth, winHeight, hDcPlayer, 0, 0,SRCCOPY;636,570, SRCCOPY
+	invoke DeleteObject, hBmpObj
+	invoke DeleteDC, hDcPlayer
+
+	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
+	invoke DeleteObject, tmpBitmap
+	invoke DeleteDC, Dc
+	invoke DeleteDC, @hDC
+	ret
+DrawMainMenu ENDP
+
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DrawPlayProc PROC, hWnd:HWND
+	LOCAL Dc:DWORD
+	LOCAL @hDC:DWORD
+	LOCAL tmpBitmap:DWORD
+	LOCAL bmp:DWORD
 	
 	invoke GetDC, hWnd
 	mov @hDC, eax
@@ -281,43 +374,10 @@ L2:
 	invoke DeleteDC, Dc
 	invoke DeleteDC, @hDC
 	ret
-Draw ENDP
+DrawPlayProc ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-processMouseEvent PROC
-	pusha
-	.if scene == 0 ;主菜单界面
-		invoke clickPosition, 140,164,413,243
-		.if eax == 1
-			mov scene,1;点击游戏开始
-		.endif
-		invoke clickPosition, 140,273,413,349
-		.if  eax == 1
-			;mov scene,2;点击帮助界面
-		.endif
-	.elseif scene == 2;帮助界面
-		mov eax, 1;
-	.endif
-	popa
-	ret
-processMouseEvent ENDP
-
-clickPosition PROC left: DWORD, top: DWORD, right: DWORD, bottom: DWORD
-	mov eax, 0
-	mov ebx, left
-	mov ecx, right
-	.IF Click_X > ebx && Click_X < ecx
-		mov ebx, top
-		mov ecx, bottom
-		.IF Click_Y > ebx && Click_Y < ecx
-			mov eax, 1
-		.ENDIF
-	.ENDIF
-	ret
-clickPosition ENDP
-
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawMainMenu PROC, hWnd:HWND
+DrawHelp PROC, hWnd:HWND
 	LOCAL Dc:DWORD
 	LOCAL Dc2:DWORD
 	LOCAL @hDC:DWORD
@@ -342,7 +402,7 @@ DrawMainMenu PROC, hWnd:HWND
 	invoke Rectangle, Dc, 0, 0, winWidth, winHeight
 ;Draw MainMenu 
 ;********************************************************************
-	mov bmp, MAIN_MENU
+	mov bmp, HELP
 
 	invoke CreateCompatibleDC, Dc
 	mov hDcPlayer, eax
@@ -360,10 +420,7 @@ DrawMainMenu PROC, hWnd:HWND
 	invoke DeleteDC, Dc
 	invoke DeleteDC, @hDC
 	ret
-DrawMainMenu ENDP
-
-
-
+DrawHelp ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 _init PROC
@@ -395,6 +452,10 @@ LOCAL wallInx:DWORD, personInx:DWORD
 ;-------------------------------------------------
 ;generate wall randomly
 ;-------------------------------------------------	
+	.if scene != 1
+		ret
+	.endif
+
 	mov wallInx, 0
 	mov ecx, wallNum
 	add ecx, wallNum
@@ -600,74 +661,8 @@ keydown_Proc PROC, hWnd:DWORD
 	ret
 keydown_Proc ENDP
 
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawGND PROC, Dc:DWORD, gnd:DWORD
-	invoke DeleteObject, hPen
-	invoke CreatePen, PS_SOLID, 3, BLACK_PEN
-	mov hPen, eax
-	invoke SelectObject, Dc, hPen
-	invoke DeleteObject, eax
-	invoke MoveToEx, Dc, 0, gnd, NULL
-	invoke LineTo, Dc, winWidth, gnd
-	ret
-DrawGND ENDP
 
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
-	LOCAL start_x
-	LOCAL start_y
-	LOCAL end_x
-	LOCAL end_y
-	
-	pushad
 
-	mov eax, Pos
-	mov start_x, eax
-	
-	add eax, Wid
-	mov end_x, eax
-
-	mov ebx, GNDPOS
-	mov end_y, ebx
-
-	sub ebx, Height
-	mov start_y, ebx
-
-	invoke DeleteObject, hBrush
-	invoke CreateSolidBrush, BLACK_BRUSH
-	mov hBrush, eax
-	invoke SelectObject, Dc, hBrush
-	invoke DeleteObject, eax
-	invoke Rectangle, Dc, start_x, start_y, end_x, end_y
-	popad
-	ret
-DrawWall ENDP
-
-;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDPOS:DWORD, hBitMap:DWORD, bWidth:DWORD, bHeight:DWORD
-	LOCAL hDcPlayer:DWORD
-	;LOCAL hBmpPlayer:DWORD
-	LOCAL hBmpObj:DWORD
-
-	invoke CreateCompatibleDC, Dc
-	mov hDcPlayer, eax
-	invoke LoadBitmap, hInst, hBitMap
-	mov hBmpObj, eax
-
-	invoke SelectObject, hDcPlayer, hBmpObj
-	mov ebx, PlayerPosX
-
-	mov eax, bWidth
-	sub ebx, eax
-	mov eax, GNDPOS
-	sub eax, bHeight
-	sub eax, PlayerPosY
-	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND 
-	invoke DeleteObject, hBmpObj
-	invoke DeleteDC, hDcPlayer
-
-	ret
-DrawPlayer ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 randomGenerate PROC, seed:DWORD

@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <MASM Include="escape.asm" />
+    <MASM Include="graphs.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data.inc" />
@@ -96,10 +97,12 @@
     <ResourceCompile Include="escape.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="bitmap3.bmp" />
     <Image Include="die1.bmp" />
     <Image Include="die2.bmp" />
     <Image Include="die3.bmp" />
     <Image Include="die4.bmp" />
+    <Image Include="help.bmp" />
     <Image Include="mainmenu.bmp" />
     <Image Include="people_1.bmp" />
     <Image Include="people_2.bmp" />

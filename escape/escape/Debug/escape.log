@@ -1,5 +1,26 @@
-﻿生成启动时间为 2015/4/9 0:48:13。
+﻿生成启动时间为 2015/4/9 22:19:54。
+     1>项目“F:\一个都不能死\escape\escape\escape.vcxproj”在节点 2 上(Build 个目标)。
+     1>_MASM:
+         Assembling escape.asm...
+         cmd.exe /C "C:\Users\Administrator\AppData\Local\Temp\tmp787e34fdcbea4dadbc5b6f30b8935185.cmd"
+         ml.exe /c /nologo /Zi /Fo"Debug\escape.obj" /Fl"escape.lst" /I "C:\masm32\include" /I "C:\Irvine" /W3 /errorReport:prompt  /Taescape.asm
+     1>escape.asm(141): warning A6004: procedure argument or local not referenced : @stPs
+     1>escape.asm(141): warning A6004: procedure argument or local not referenced : @hDc
+     1>escape.asm(213): warning A6004: procedure argument or local not referenced : Dc
+     1>escape.asm(213): warning A6004: procedure argument or local not referenced : @hDC
+     1>escape.asm(213): warning A6004: procedure argument or local not referenced : tmpBitmap
+     1>escape.asm(213): warning A6004: procedure argument or local not referenced : bmp
+     1>escape.asm(295): warning A6004: procedure argument or local not referenced : Dc2
+     1>escape.asm(423): warning A6004: procedure argument or local not referenced : Dc2
+     1>escape.asm(625): warning A6004: procedure argument or local not referenced : hWnd
+     1>escape.asm(683): warning A6004: procedure argument or local not referenced : hWnd
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\一个都不能死\escape\Debug\escape.exe" /INCREMENTAL /NOLOGO /LIBPATH:D:\masm32\lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\一个都不能死\escape\Debug\escape.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\一个都不能死\escape\Debug\escape.lib" /MACHINE:X86 /SAFESEH:NO Debug\escape.res
+         Debug\escape.obj
+         Debug\graphs.obj
+         escape.vcxproj -> F:\一个都不能死\escape\Debug\escape.exe
+     1>已完成生成项目“F:\一个都不能死\escape\escape\escape.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:00.04
+已用时间 00:00:01.16
