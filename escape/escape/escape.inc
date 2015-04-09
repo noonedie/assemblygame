@@ -9,4 +9,6 @@ DrawDeath PROTO, hWnd:HWND
 DrawMainMenu PROTO, hWnd:HWND
 randomGenerate PROTO, seed:DWORD
 processMouseEvent PROTO
-clickPosition PROTO left: DWORD, top: DWORD, right: DWORD, bottom: DWORD
+clickPosition PROTO, left: DWORD, top: DWORD, right: DWORD, bottom: DWORD
+DrawPlayProc PROTO, hWnd:HWND
+DrawHelp PROTO, hWnd:HWND

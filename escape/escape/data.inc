@@ -19,6 +19,7 @@ DIE_4       equ 108
 MAIN_MENU   equ 2
 FREQUENCY   equ 50
 TIMERID		equ 123
+HELP		equ	112
 ;------------------------
 wallMaxHeight = 40
 moveSpeed	  =  8 
