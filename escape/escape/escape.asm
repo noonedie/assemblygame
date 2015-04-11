@@ -176,7 +176,7 @@ _WinMain	proc
 ; 建立并显示窗口
 ;********************************************************************
 		invoke	CreateWindowEx,WS_EX_CLIENTEDGE,offset szClassName,offset szCaptionMain,\
-			WS_OVERLAPPEDWINDOW xor WS_MAXIMIZEBOX,\
+			WS_OVERLAPPED+WS_CAPTION+WS_SYSMENU+WS_MINIMIZEBOX,\
 			100,100,winWidth,winHeight,\
 			NULL,NULL,hInstance,NULL
 		mov	hWinMain,eax
@@ -232,6 +232,19 @@ processMouseEvent PROC
 		.if  eax == 1
 			mov scene,2;点击帮助界面
 		.endif
+	.elseif scene == 1
+		.if death == 1;死亡界面的处理
+			invoke clickPosition, 165, 310, 250, 335
+			.if eax == 1;点击了“重新开始”
+				invoke _init
+				mov scene, 1
+			.endif
+			invoke clickPosition, 330, 310, 435, 335
+			.if eax == 1;点击了“返回主菜单”
+				invoke _init
+				mov scene, 0
+			.endif
+		.endif	
 	.elseif scene == 2;帮助界面
 		invoke clickPosition, 365,320,480,360
 		.if eax == 1
@@ -347,11 +360,11 @@ DrawPlayProc PROC, hWnd:HWND
 		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
 		invoke DrawDeath, Dc
 		;死亡音效
-		.if gameover == 0
+		;.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
-		INVOKE mciSendString,ADDR dieSound, NULL, 0, NULL
-		INVOKE mciSendString,ADDR playOneTime, NULL, 0, NULL
-		.endif
+		;INVOKE mciSendString,ADDR dieSound, NULL, 0, NULL
+		;INVOKE mciSendString,ADDR playOneTime, NULL, 0, NULL
+		;.endif
 	.else
 		.if ring == 0
 			mov bmp, PEOPLE_1
@@ -365,8 +378,12 @@ DrawPlayProc PROC, hWnd:HWND
 	.endif	
 
 	invoke scoreTrans
-	invoke TextOut,Dc, 400, 10, ADDR string, LENGTHOF string
-	invoke TextOut,Dc, 450, 10, ADDR scoreInfo, len
+	.if death != 1	
+		invoke TextOut,Dc, 400, 10, ADDR string, LENGTHOF string
+		invoke TextOut,Dc, 450, 10, ADDR scoreInfo, len
+	.else
+		invoke TextOut,Dc, 280, 158, ADDR scoreInfo, len
+	.endif
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
 	invoke DeleteObject, tmpBitmap
@@ -422,21 +439,31 @@ DrawHelp ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 _init PROC
-	
 	INVOKE mciSendString,ADDR BGMName, NULL, 0, NULL
 	INVOKE mciSendString,ADDR playTextBGM, NULL, 0, NULL
 	mov gndPos, (winHeight - 100)/2
 	mov gndPos+4, winHeight - 100
 	mov ring, 0
+	mov death, 0
+
 	mov ecx, wallNum*playerNum
-	mov eax, winWidth - 100
 L1:
-	mov wallPos[ecx*4-4], eax
+	mov wallPos[ecx*4-4], 0
 	mov wallHeight[ecx*4-4], 0
-	sub eax, 40
 	Loop L1
-	invoke GetTickCount
-	mov timeStamp, eax
+
+	mov ecx, playerNum
+L2:
+	mov personJumpTime[ecx*4-4], 0
+	mov playerPos[ecx*4-4], 0
+	mov isScore[ecx*4-4], 0
+	Loop L2
+
+	mov score, 0
+	mov char, 20h
+	mov die_action, 0
+	mov gameover, 0
+	mov scene, 0
 
 	INVOKE GetTickCount
 	mov randomSeed, eax
