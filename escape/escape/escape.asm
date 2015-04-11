@@ -28,6 +28,8 @@ wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
 ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
+
+;score data
 string	   BYTE		'Score:'			;提示字符串
 scoreInfo  BYTE		20	DUP(0)			;转成字符串格式的得分值
 len		   DWORD	0					;转成字符串的数字的实际格式
@@ -41,6 +43,8 @@ Click_Y    DWORD  0					;点击的y坐标
 die_action DWORD  0					;死亡的动作
 gameover   DWORD  0					;游戏结束
 scene	   DWORD  0					;游戏场景，0为主菜单，1为游戏界面，2为帮助界面
+
+;
 
 ;music 
 	Mp3Device				db			"MPEGVideo",0
@@ -341,6 +345,7 @@ DrawPlayProc PROC, hWnd:HWND
 		.endif
 		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos, gndPos, bmp, dieWidth, dieHeight
 		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
+		invoke DrawDeath, Dc
 		;死亡音效
 		.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
@@ -379,7 +384,6 @@ DrawHelp PROC, hWnd:HWND
 	LOCAL bmp:DWORD
 
 	LOCAL hDcPlayer:DWORD
-	;LOCAL hBmpPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
 	invoke GetDC, hWnd
@@ -719,8 +723,22 @@ randomGenerate PROC, seed:DWORD
 randomGenerate ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawDeath PROC, hWnd:HWND
+DrawDeath PROC, Dc:DWORD
+	LOCAL hDcPlayer:DWORD
+	LOCAL hBmpObj:DWORD
+	LOCAL bmp:DWORD
 
+	mov bmp, GAME_OVER
+	invoke CreateCompatibleDC, Dc
+	mov hDcPlayer, eax
+	invoke LoadBitmap, hInstance, bmp
+	mov hBmpObj, eax
+
+	invoke SelectObject, hDcPlayer, hBmpObj
+
+	invoke BitBlt, Dc, 0, 0, winWidth, winHeight, hDcPlayer, 0, 0,SRCCOPY;636,570, SRCCOPY
+	invoke DeleteObject, hBmpObj
+	invoke DeleteDC, hDcPlayer
 	ret
 DrawDeath ENDP
 

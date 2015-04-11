@@ -18,6 +18,7 @@ DIE_1       equ 105
 DIE_2       equ 106
 DIE_3       equ 107
 DIE_4       equ 108
+GAME_OVER	equ	115
 MAIN_MENU   equ 2
 FREQUENCY   equ 50
 TIMERID		equ 123
