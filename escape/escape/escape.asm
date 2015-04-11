@@ -28,9 +28,9 @@ wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
 ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
-score	   DWORD	0  ;得分
 string	   BYTE		'Score:'			;提示字符串
 scoreInfo  BYTE		20	DUP(0)			;转成字符串格式的得分值
+len		   DWORD	0					;转成字符串的数字的实际格式
 
 ;pydata
 isScore    DWORD  playerNum	DUP(0)	;本次跳跃是否得分过	
@@ -359,6 +359,10 @@ DrawPlayProc PROC, hWnd:HWND
 		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, pWidth, pHeight
 	.endif	
 
+	invoke scoreTrans
+	invoke TextOut,Dc, 400, 10, ADDR string, LENGTHOF string
+	invoke TextOut,Dc, 450, 10, ADDR scoreInfo, len
+
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
 	invoke DeleteObject, tmpBitmap
 	invoke DeleteDC, Dc
@@ -639,6 +643,26 @@ getNextState ENDP
 ;transfer score to scoreString
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 scoreTrans	PROC
+	pushad
+	mov eax, score
+	mov ecx, 0
+	mov ebx, 10
+L1:
+	mov edx, 0
+	div ebx
+	push edx
+	inc ecx
+	cmp eax, 0
+	jnz L1
+	mov edx, 0
+	mov len, ecx
+L2:
+	pop eax
+	add al, '0'
+	mov scoreInfo[edx], al
+	inc edx
+	Loop L2
+	popad
 	ret
 scoreTrans	ENDP
 
