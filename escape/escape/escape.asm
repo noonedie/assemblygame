@@ -28,6 +28,9 @@ wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
 ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
+score	   DWORD	0  ;得分
+string	   BYTE		'Score:'			;提示字符串
+scoreInfo  BYTE		20	DUP(0)			;转成字符串格式的得分值
 
 ;pydata
 char WPARAM 20h
@@ -287,6 +290,7 @@ DrawMainMenu PROC, hWnd:HWND
 	invoke BitBlt, Dc, 0, 0, winWidth, winHeight, hDcPlayer, 0, 0,SRCCOPY;636,570, SRCCOPY
 	invoke DeleteObject, hBmpObj
 	invoke DeleteDC, hDcPlayer
+
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
 	invoke DeleteObject, tmpBitmap
@@ -620,6 +624,12 @@ PM:
 	.endif
 	ret
 getNextState ENDP
+
+;transfer score to scoreString
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+scoreTrans	PROC
+	ret
+scoreTrans	ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 keydown_Proc PROC, hWnd:DWORD
