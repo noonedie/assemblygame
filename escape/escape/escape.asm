@@ -455,7 +455,9 @@ LOCAL wallInx:DWORD, personInx:DWORD
 	.if scene != 1
 		ret
 	.endif
-
+	.if death == 1 && die_action >= 3
+		ret
+	.endif
 	mov wallInx, 0
 	mov ecx, wallNum
 	add ecx, wallNum

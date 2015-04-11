@@ -24,8 +24,8 @@ TIMERID		equ 123
 HELP		equ	112
 ;------------------------
 wallMaxHeight = 40
-moveSpeed	  =  8 
+moveSpeed	  = 3 
 wallSafeDistance   = 150
 wallGenerateChance = 23
-personJumpSpeed  =  20
-accelerateSpeed  =  2
+personJumpSpeed  =  25
+accelerateSpeed  =  4
