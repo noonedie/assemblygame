@@ -226,7 +226,7 @@ processMouseEvent PROC
 			mov scene,2;点击帮助界面
 		.endif
 	.elseif scene == 2;帮助界面
-		invoke clickPosition, 440,50,550,90
+		invoke clickPosition, 365,320,480,360
 		.if eax == 1
 			mov scene, 0
 		.endif
