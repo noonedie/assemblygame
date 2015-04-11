@@ -26,7 +26,7 @@ gndPos     DWORD	playerNum	DUP(?) ;地面的信息
 wallPos	   DWORD	wallNum*playerNum		DUP(?) ;墙的水平位置信息
 wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
 ring	   DWORD    0					;人物动作标志
-death	   DWORD	0					;死亡标志
+death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
 
 ;pydata
@@ -204,6 +204,7 @@ Draw PROC, hWnd:HWND
 MainMenu:
 	.if scene == 0
 		invoke DrawMainMenu, hWnd
+
 	.elseif scene == 1
 		invoke DrawPlayProc, hWnd
 	.else
@@ -320,23 +321,8 @@ DrawPlayProc PROC, hWnd:HWND
 	invoke DrawGND, Dc, gndPos+4
 ;Draw wall
 ;********************************************************************
-	mov ecx, playerNum
-L1:
-	push ecx
-	mov eax, ecx
-	sub eax, 1
-	mov ecx, wallNum
-L2:
-	push ecx
-	sub ecx, 1
-	imul ebx, ecx, TYPE wallHeight
-	imul edx, eax, TYPE wallHeight * wallNum
-	add ebx, edx
-	invoke DrawWall, Dc, wallHeight[ebx], wallThick, wallPos[ebx], gndPos[eax*4]
-	pop ecx
-	Loop L2
-	pop ecx
-	Loop L1
+	invoke DrawAllWall, Dc
+
 ;Draw player
 ;********************************************************************
 	.if death == 1
@@ -691,6 +677,27 @@ DrawDeath PROC, hWnd:HWND
 	ret
 DrawDeath ENDP
 
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+DrawAllWall PROC, Dc:DWORD
+	mov ecx, playerNum
+L1:
+	push ecx
+	mov eax, ecx
+	sub eax, 1
+	mov ecx, wallNum
+L2:
+	push ecx
+	sub ecx, 1
+	imul ebx, ecx, TYPE wallHeight
+	imul edx, eax, TYPE wallHeight * wallNum
+	add ebx, edx
+	invoke DrawWall, Dc, wallHeight[ebx], wallThick, wallPos[ebx], gndPos[eax*4]
+	pop ecx
+	Loop L2
+	pop ecx
+	Loop L1
+	ret
+DrawAllWall ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 start:
 		call	_WinMain

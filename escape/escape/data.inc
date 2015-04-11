@@ -19,12 +19,12 @@ DIE_2       equ 106
 DIE_3       equ 107
 DIE_4       equ 108
 MAIN_MENU   equ 2
-FREQUENCY   equ 50
+FREQUENCY   equ 10
 TIMERID		equ 123
 HELP		equ	112
 ;------------------------
 wallMaxHeight = 40
-moveSpeed	  =  8 
+moveSpeed	  =  1 
 wallSafeDistance   = 150
 wallGenerateChance = 23
 personJumpSpeed  =  20
