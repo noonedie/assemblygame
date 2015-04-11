@@ -13,3 +13,4 @@ clickPosition PROTO, left: DWORD, top: DWORD, right: DWORD, bottom: DWORD
 DrawPlayProc PROTO, hWnd:HWND
 DrawHelp PROTO, hWnd:HWND
 DrawAllWall PROTO, Dc:DWORD
+scoreTrans PROTO
