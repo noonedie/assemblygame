@@ -30,11 +30,11 @@ death	   DWORD	0					;死亡标志
 randomSeed DWORD    0  ;随机数种子
 
 ;pydata
-char WPARAM 20h
+isScore    DWORD  playerNum	DUP(0)	;本次跳跃是否得分过	
+score	   DWORD 0					;用户得分
+char	   WPARAM 20h
 Click_X	   DWORD  0					;点击的x坐标
-BYTE 0
 Click_Y    DWORD  0					;点击的y坐标
-BYTE 0
 die_action DWORD  0					;死亡的动作
 gameover   DWORD  0					;游戏结束
 scene	   DWORD  0					;游戏场景，0为主菜单，1为游戏界面，2为帮助界面
@@ -520,17 +520,21 @@ DANDM:
 	;检测碰撞，需要修改为两个不同的人
 	.IF wallInx < 3
 		;和第一个人进行碰撞检测
+
+
+
 		mov ebx, playerPos[0]
 		mov edx, pPos
 		mov ecx, pPos
 		sub ecx, wallThick+playerWidth; ecx = pPos - wallThick
-		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] && ebx < wallHeight[eax*4]
-			mov death, 1
-			;mov ecx,wallPos[eax*4]
-			;mov ebx,wallPos[eax*4]+wallThick
-			;mov eax, wallPos[eax*4+4]
-				;
-			;inc eax
+		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] ;  && ebx < wallHeight[eax*4]
+			.IF ebx < wallHeight[eax*4]
+				mov death, 1
+			.ENDIF
+			.IF ebx >= wallHeight[eax*4] && isScore[0] == 0 && wallHeight[eax*4] != 0; 高度为0表示墙还未出现
+				inc score
+				mov isScore[0], 1
+			.ENDIF
 		.ENDIF
 	.ELSE
 		;和第二个人进行碰撞检测
@@ -538,8 +542,14 @@ DANDM:
 		mov edx, pPos
 		mov ecx, pPos
 		sub ecx, wallThick+playerWidth ; ecx = pPos - wallThick
-		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] && ebx < wallHeight[eax*4]
-			mov death, 1
+		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] ;;;&& ebx < wallHeight[eax*4]
+			.IF ebx < wallHeight[eax*4]
+				mov death, 1
+			.ENDIF
+			.IF ebx >= wallHeight[eax*4] && isScore[4] == 0 && wallHeight[eax*4] != 0
+				inc score
+				mov isScore[4], 1
+			.ENDIF
 		.ENDIF
 	.ENDIF
 	;移除超出屏幕的方块
@@ -565,9 +575,8 @@ PM:
 	sub eax, ecx
 	mov personInx, eax
 	.IF personJumpTime[eax*4] != 0; y = ut - at*t/2
-
 		add personJumpTime[eax*4], 1
-	
+		
 		mov ebx,personInx
 		mov eax, personJumpTime[ebx*4]
 		mov ebx, accelerateSpeed
@@ -597,6 +606,8 @@ PM:
 			mov eax, personInx
 			mov playerPos[eax*4], ebx
 		.ENDIF
+	.ELSEIF personJumpTime[eax*4] == 0
+		mov isScore[eax*4],0	;为下次跳跃计分做初始化
 	.ENDIF
 	pop ecx
 	dec ecx
