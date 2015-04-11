@@ -533,15 +533,24 @@ DANDM:
 	.IF wallInx < 3
 		;和第一个人进行碰撞检测
 		mov ebx, playerPos[0]
+		mov edx, pPos
 		mov ecx, pPos
-		.IF ecx > wallPos[eax*4] && ecx < wallPos[eax*4]+wallThick && ebx < wallHeight[eax*4]
+		sub ecx, wallThick+playerWidth; ecx = pPos - wallThick
+		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] && ebx < wallHeight[eax*4]
 			mov death, 1
+			;mov ecx,wallPos[eax*4]
+			;mov ebx,wallPos[eax*4]+wallThick
+			;mov eax, wallPos[eax*4+4]
+				;
+			;inc eax
 		.ENDIF
 	.ELSE
 		;和第二个人进行碰撞检测
 		mov ebx, playerPos[4]
+		mov edx, pPos
 		mov ecx, pPos
-		.IF ecx > wallPos[eax*4] && ecx < wallPos[eax*4]+wallThick && ebx < wallHeight[eax*4]
+		sub ecx, wallThick+playerWidth ; ecx = pPos - wallThick
+		.IF edx > wallPos[eax*4] && ecx < wallPos[eax*4] && ebx < wallHeight[eax*4]
 			mov death, 1
 		.ENDIF
 	.ENDIF

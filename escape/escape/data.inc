@@ -3,11 +3,13 @@ wallNum	    =	3
 winHeight	=	400
 winWidth	=	600
 wallThick	=	4
-pWidth		=	32
+pWidth		=	32			;人物图片的宽度
 pHeight		=	32
 dieWidth	=   128
 dieHeight   =   128
-pPos		=	150
+
+playerWidth equ  20          ;实际人物的宽度，用于碰撞检测
+pPos		equ	150			;人物右下角的x坐标
 PEOPLE_1	equ 101
 PEOPLE_2	equ	65535
 PEOPLE_3    equ 104
