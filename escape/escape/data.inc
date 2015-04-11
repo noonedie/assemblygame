@@ -5,10 +5,9 @@ winWidth	=	600
 wallThick	=	4
 pWidth		=	32			;人物图片的宽度
 pHeight		=	32
-dieWidth	=   128
-dieHeight   =   128
-
-playerWidth equ  20          ;实际人物的宽度，用于碰撞检测
+dieWidth	equ 127
+dieHeight   equ 74
+playerWidth equ 20          ;实际人物的宽度，用于碰撞检测
 pPos		equ	150			;人物右下角的x坐标
 PEOPLE_1	equ 101
 PEOPLE_2	equ	65535
@@ -24,7 +23,7 @@ TIMERID		equ 123
 HELP		equ	112
 ;------------------------
 wallMaxHeight = 40
-moveSpeed	  = 3 
+moveSpeed	  = 8 
 wallSafeDistance   = 150
 wallGenerateChance = 23
 personJumpSpeed  =  25

@@ -349,8 +349,8 @@ L2:
 		.else
 			mov bmp, DIE_4
 		.endif
-		invoke DrawPlayer, hInstance, Dc, pPos, playerPos, gndPos, bmp, dieWidth, dieHeight
-		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos, gndPos, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
 		;À¿Õˆ“Ù–ß
 		.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
