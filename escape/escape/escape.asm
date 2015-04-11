@@ -335,8 +335,8 @@ DrawPlayProc PROC, hWnd:HWND
 		.else
 			mov bmp, DIE_4
 		.endif
-		invoke DrawPlayer, hInstance, Dc, pPos, playerPos, gndPos, bmp, dieWidth, dieHeight
-		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos, gndPos, bmp, dieWidth, dieHeight
+		invoke DrawPlayer, hInstance, Dc, pPos+(dieWidth-pWidth)/2, playerPos+4, gndPos+4, bmp, dieWidth, dieHeight
 		;ËÀÍöÒôÐ§
 		.if gameover == 0
 		INVOKE mciSendString,ADDR closeTextBGM,NULL, 0 ,NULL
@@ -441,7 +441,9 @@ LOCAL wallInx:DWORD, personInx:DWORD
 	.if scene != 1
 		ret
 	.endif
-
+	.if death == 1 && die_action >= 3
+		ret
+	.endif
 	mov wallInx, 0
 	mov ecx, wallNum
 	add ecx, wallNum
