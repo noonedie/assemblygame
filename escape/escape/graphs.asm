@@ -20,7 +20,6 @@ include data.inc
 .code
 DrawGND PROC, Dc:DWORD, gnd:DWORD
 	LOCAL hPen:DWORD
-	;invoke DeleteObject, hPen
 	invoke CreatePen, PS_SOLID, 3, BLACK_PEN
 	mov hPen, eax
 	invoke SelectObject, Dc, hPen
@@ -31,12 +30,13 @@ DrawGND PROC, Dc:DWORD, gnd:DWORD
 DrawGND ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
+DrawWall PROC, @Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 	LOCAL start_x
 	LOCAL start_y
 	LOCAL end_x
 	LOCAL end_y
 	LOCAL hBrush
+	LOCAL hOld
 	
 	pushad
 
@@ -52,12 +52,13 @@ DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 	sub ebx, Height
 	mov start_y, ebx
 
-	;invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, BLACK_BRUSH
 	mov hBrush, eax
-	invoke SelectObject, Dc, hBrush
-	invoke DeleteObject, eax
-	invoke Rectangle, Dc, start_x, start_y, end_x, end_y
+	invoke SelectObject, @Dc, hBrush
+	mov hOld, eax
+	invoke Rectangle, @Dc, start_x, start_y, end_x, end_y
+	invoke SelectObject, @Dc, hOld
+	invoke DeleteObject, hBrush
 	popad
 	ret
 DrawWall ENDP
@@ -65,11 +66,11 @@ DrawWall ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDPOS:DWORD, hBitMap:DWORD, bWidth:DWORD, bHeight:DWORD
 	LOCAL hDcPlayer:DWORD
-	;LOCAL hBmpPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
 	invoke CreateCompatibleDC, Dc
 	mov hDcPlayer, eax
+
 	invoke LoadBitmap, hInst, hBitMap
 	mov hBmpObj, eax
 
@@ -81,9 +82,9 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDP
 	mov eax, GNDPOS
 	sub eax, bHeight
 	sub eax, PlayerPosY
-	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND 
-	invoke DeleteObject, hBmpObj
+	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND
 	invoke DeleteDC, hDcPlayer
+	invoke DeleteObject, hBmpObj
 
 	ret
 DrawPlayer ENDP

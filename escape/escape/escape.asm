@@ -44,7 +44,11 @@ die_action DWORD  0					;死亡的动作
 gameover   DWORD  0					;游戏结束
 scene	   DWORD  0					;游戏场景，0为主菜单，1为游戏界面，2为帮助界面
 
-;
+;DC
+Dc			DWORD	0
+@hDC		DWORD	0
+tmpBitmap	DWORD	0
+bmp			DWORD	0
 
 ;music 
 	Mp3Device				db			"MPEGVideo",0
@@ -87,19 +91,19 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 
 		mov	eax,uMsg
 ;********************************************************************
-;.if	eax ==	WM_PAINT && scene == 1
+;.if	eax ==	WM_PAINT
 ;			invoke GetTickCount
 ;			push eax
 ;			sub eax, timeStamp
 ;			.if eax > 50
-;				invoke	getNextState, hWinMain
+;				invoke	getNextState, hWnd
 ;				pop timeStamp
 ;			.endif
-;			invoke Draw, hWinMain
+;			invoke Draw, hWnd
 ;********************************************************************
 		.IF uMsg == WM_TIMER
-			invoke getNextState, hWinMain
-			invoke Draw, hWinMain
+			invoke getNextState, hWnd
+			invoke Draw, hWnd
 ;********************************************************************
 		.elseif	eax ==	WM_CLOSE
 			invoke KillTimer,hWnd,ID_Timer
@@ -109,11 +113,11 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 		.elseif	eax ==	WM_CHAR
 			push wParam
 			pop char
-			invoke	keydown_Proc, hWinMain
+			invoke	keydown_Proc, hWnd
 
 ;********************************************************************
 ;		.elseif	eax ==	WM_KEYDOWN 
-;			invoke	keydown_Proc, hWinMain
+;			invoke	keydown_Proc, hWnd
 ;********************************************************************
 		.elseif eax == WM_LBUTTONDOWN					;鼠标事件
 			invoke GetWindowRect, hWnd, ADDR @stRect
@@ -156,10 +160,6 @@ _WinMain	proc
 		mov	hInstance,eax
 		invoke	RtlZeroMemory,addr @stWndClass,sizeof @stWndClass
 ;********************************************************************
-; 初始化数据
-;********************************************************************
-		invoke _init
-;********************************************************************
 ; 注册窗口类
 ;********************************************************************
 		invoke	LoadCursor,0,IDC_ARROW
@@ -183,7 +183,10 @@ _WinMain	proc
 		invoke	ShowWindow,hWinMain,SW_SHOWNORMAL
 		invoke	UpdateWindow,hWinMain
 		invoke SetTimer, hWinMain, TIMERID,FREQUENCY,NULL
-
+;********************************************************************
+; 初始化数据
+;********************************************************************
+		invoke _init
 
 ;********************************************************************
 ; 消息循环
@@ -200,10 +203,6 @@ _WinMain	endp
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Draw PROC, hWnd:HWND
-	LOCAL Dc:DWORD
-	LOCAL @hDC:DWORD
-	LOCAL tmpBitmap:DWORD
-	LOCAL bmp:DWORD
 
 ;********************************************************************
 ; 主菜单页面
@@ -271,23 +270,11 @@ clickPosition ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DrawMainMenu PROC, hWnd:HWND
-	LOCAL Dc:DWORD
-	LOCAL Dc2:DWORD
-	LOCAL @hDC:DWORD
-	LOCAL tmpBitmap:DWORD
-	LOCAL bmp:DWORD
 
 	LOCAL hDcPlayer:DWORD
 	;LOCAL hBmpPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
-	invoke GetDC, hWnd
-	mov @hDC, eax
-	invoke CreateCompatibleDC, @hDC
-	mov Dc, eax
-	invoke CreateCompatibleBitmap,@hDC, winWidth, winHeight
-	mov tmpBitmap, eax
-	invoke SelectObject,Dc, tmpBitmap
 ;clear background
 	invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, WHITE_BRUSH
@@ -310,30 +297,17 @@ DrawMainMenu PROC, hWnd:HWND
 
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
-	invoke DeleteObject, tmpBitmap
-	invoke DeleteDC, Dc
-	invoke DeleteDC, @hDC
 	ret
 DrawMainMenu ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DrawPlayProc PROC, hWnd:HWND
-	LOCAL Dc:DWORD
-	LOCAL @hDC:DWORD
-	LOCAL tmpBitmap:DWORD
-	LOCAL bmp:DWORD
 	
-	invoke GetDC, hWnd
-	mov @hDC, eax
-	invoke CreateCompatibleDC, @hDC
-	mov Dc, eax
-	invoke CreateCompatibleBitmap,@hDC, winWidth, winHeight
-	mov tmpBitmap, eax
-	invoke SelectObject,Dc, tmpBitmap
 ;clear background
 	invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, WHITE_BRUSH
 	mov hBrush, eax
+
 	invoke Rectangle, Dc, 0, 0, winWidth, winHeight
 
 ;Draw ground
@@ -386,30 +360,14 @@ DrawPlayProc PROC, hWnd:HWND
 	.endif
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
-	invoke DeleteObject, tmpBitmap
-	invoke DeleteDC, Dc
-	invoke DeleteDC, @hDC
 	ret
 DrawPlayProc ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DrawHelp PROC, hWnd:HWND
-	LOCAL Dc:DWORD
-	LOCAL Dc2:DWORD
-	LOCAL @hDC:DWORD
-	LOCAL tmpBitmap:DWORD
-	LOCAL bmp:DWORD
-
 	LOCAL hDcPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
-	invoke GetDC, hWnd
-	mov @hDC, eax
-	invoke CreateCompatibleDC, @hDC
-	mov Dc, eax
-	invoke CreateCompatibleBitmap,@hDC, winWidth, winHeight
-	mov tmpBitmap, eax
-	invoke SelectObject,Dc, tmpBitmap
 ;clear background
 	invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, WHITE_BRUSH
@@ -431,9 +389,6 @@ DrawHelp PROC, hWnd:HWND
 	invoke DeleteDC, hDcPlayer
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
-	invoke DeleteObject, tmpBitmap
-	invoke DeleteDC, Dc
-	invoke DeleteDC, @hDC
 	ret
 DrawHelp ENDP
 
@@ -467,6 +422,17 @@ L2:
 
 	INVOKE GetTickCount
 	mov randomSeed, eax
+	invoke CreateSolidBrush, WHITE_BRUSH
+	mov hBrush, eax
+
+	invoke GetDC, hWinMain
+	mov @hDC, eax
+	invoke CreateCompatibleDC, @hDC
+	mov Dc, eax
+	invoke CreateCompatibleBitmap,@hDC, winWidth, winHeight
+	mov tmpBitmap, eax
+	invoke SelectObject,Dc, tmpBitmap
+
 	ret
 _init ENDP
 
@@ -683,8 +649,13 @@ L1:
 	div ebx
 	push edx
 	inc ecx
+	.if ecx == LENGTHOF scoreInfo
+		jmp NEXT
+	.endif
 	cmp eax, 0
 	jnz L1
+
+NEXT:
 	mov edx, 0
 	mov len, ecx
 L2:
@@ -700,11 +671,15 @@ scoreTrans	ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 keydown_Proc PROC, hWnd:DWORD
 ;逻辑代码安排在这部分
-	.IF char == 'j' && personJumpTime[0] == 0	
+	.IF char == 'w' && personJumpTime[0] == 0	
 		mov personJumpTime[0], 1
 	.ENDIF
-	.IF char == 'k'	&& personJumpTime[4] == 0
+	.IF char == 'i'	&& personJumpTime[4] == 0
 		mov personJumpTime[4], 1
+	.ENDIF
+	.IF char == ' ' && death == 1
+		invoke _init
+		mov scene, 1
 	.ENDIF
 	;测试代码
 ;********************************************************************
@@ -750,27 +725,26 @@ randomGenerate PROC, seed:DWORD
 randomGenerate ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawDeath PROC, Dc:DWORD
+DrawDeath PROC, @Dc:DWORD
 	LOCAL hDcPlayer:DWORD
 	LOCAL hBmpObj:DWORD
-	LOCAL bmp:DWORD
 
 	mov bmp, GAME_OVER
-	invoke CreateCompatibleDC, Dc
+	invoke CreateCompatibleDC, @Dc
 	mov hDcPlayer, eax
 	invoke LoadBitmap, hInstance, bmp
 	mov hBmpObj, eax
 
 	invoke SelectObject, hDcPlayer, hBmpObj
 
-	invoke BitBlt, Dc, 0, 0, winWidth, winHeight, hDcPlayer, 0, 0,SRCCOPY;636,570, SRCCOPY
+	invoke BitBlt, @Dc, 0, 0, winWidth, winHeight, hDcPlayer, 0, 0,SRCCOPY;636,570, SRCCOPY
 	invoke DeleteObject, hBmpObj
 	invoke DeleteDC, hDcPlayer
 	ret
 DrawDeath ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawAllWall PROC, Dc:DWORD
+DrawAllWall PROC, @Dc:DWORD
 	mov ecx, playerNum
 L1:
 	push ecx
@@ -783,7 +757,7 @@ L2:
 	imul ebx, ecx, TYPE wallHeight
 	imul edx, eax, TYPE wallHeight * wallNum
 	add ebx, edx
-	invoke DrawWall, Dc, wallHeight[ebx], wallThick, wallPos[ebx], gndPos[eax*4]
+	invoke DrawWall, @Dc, wallHeight[ebx], wallThick, wallPos[ebx], gndPos[eax*4]
 	pop ecx
 	Loop L2
 	pop ecx
