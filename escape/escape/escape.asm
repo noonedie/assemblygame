@@ -87,19 +87,19 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 
 		mov	eax,uMsg
 ;********************************************************************
-;.if	eax ==	WM_PAINT && scene == 1
+;.if	eax ==	WM_PAINT
 ;			invoke GetTickCount
 ;			push eax
 ;			sub eax, timeStamp
 ;			.if eax > 50
-;				invoke	getNextState, hWinMain
+;				invoke	getNextState, hWnd
 ;				pop timeStamp
 ;			.endif
-;			invoke Draw, hWinMain
+;			invoke Draw, hWnd
 ;********************************************************************
 		.IF uMsg == WM_TIMER
-			invoke getNextState, hWinMain
-			invoke Draw, hWinMain
+			invoke getNextState, hWnd
+			invoke Draw, hWnd
 ;********************************************************************
 		.elseif	eax ==	WM_CLOSE
 			invoke KillTimer,hWnd,ID_Timer
@@ -109,11 +109,11 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 		.elseif	eax ==	WM_CHAR
 			push wParam
 			pop char
-			invoke	keydown_Proc, hWinMain
+			invoke	keydown_Proc, hWnd
 
 ;********************************************************************
 ;		.elseif	eax ==	WM_KEYDOWN 
-;			invoke	keydown_Proc, hWinMain
+;			invoke	keydown_Proc, hWnd
 ;********************************************************************
 		.elseif eax == WM_LBUTTONDOWN					;鼠标事件
 			invoke GetWindowRect, hWnd, ADDR @stRect
@@ -334,6 +334,7 @@ DrawPlayProc PROC, hWnd:HWND
 	invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, WHITE_BRUSH
 	mov hBrush, eax
+
 	invoke Rectangle, Dc, 0, 0, winWidth, winHeight
 
 ;Draw ground
@@ -399,7 +400,6 @@ DrawHelp PROC, hWnd:HWND
 	LOCAL @hDC:DWORD
 	LOCAL tmpBitmap:DWORD
 	LOCAL bmp:DWORD
-
 	LOCAL hDcPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
@@ -467,6 +467,8 @@ L2:
 
 	INVOKE GetTickCount
 	mov randomSeed, eax
+	invoke CreateSolidBrush, WHITE_BRUSH
+	mov hBrush, eax
 	ret
 _init ENDP
 
@@ -683,8 +685,13 @@ L1:
 	div ebx
 	push edx
 	inc ecx
+	.if ecx == LENGTHOF scoreInfo
+		jmp NEXT
+	.endif
 	cmp eax, 0
 	jnz L1
+
+NEXT:
 	mov edx, 0
 	mov len, ecx
 L2:
@@ -700,11 +707,15 @@ scoreTrans	ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 keydown_Proc PROC, hWnd:DWORD
 ;逻辑代码安排在这部分
-	.IF char == 'j' && personJumpTime[0] == 0	
+	.IF char == 'w' && personJumpTime[0] == 0	
 		mov personJumpTime[0], 1
 	.ENDIF
-	.IF char == 'k'	&& personJumpTime[4] == 0
+	.IF char == 'i'	&& personJumpTime[4] == 0
 		mov personJumpTime[4], 1
+	.ENDIF
+	.IF char == ' ' && death == 1
+		invoke _init
+		mov scene, 1
 	.ENDIF
 	;测试代码
 ;********************************************************************

@@ -20,7 +20,6 @@ include data.inc
 .code
 DrawGND PROC, Dc:DWORD, gnd:DWORD
 	LOCAL hPen:DWORD
-	;invoke DeleteObject, hPen
 	invoke CreatePen, PS_SOLID, 3, BLACK_PEN
 	mov hPen, eax
 	invoke SelectObject, Dc, hPen
@@ -52,7 +51,6 @@ DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 	sub ebx, Height
 	mov start_y, ebx
 
-	;invoke DeleteObject, hBrush
 	invoke CreateSolidBrush, BLACK_BRUSH
 	mov hBrush, eax
 	invoke SelectObject, Dc, hBrush
@@ -65,11 +63,11 @@ DrawWall ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDPOS:DWORD, hBitMap:DWORD, bWidth:DWORD, bHeight:DWORD
 	LOCAL hDcPlayer:DWORD
-	;LOCAL hBmpPlayer:DWORD
 	LOCAL hBmpObj:DWORD
 
 	invoke CreateCompatibleDC, Dc
 	mov hDcPlayer, eax
+
 	invoke LoadBitmap, hInst, hBitMap
 	mov hBmpObj, eax
 
@@ -81,9 +79,9 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDP
 	mov eax, GNDPOS
 	sub eax, bHeight
 	sub eax, PlayerPosY
-	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND 
-	invoke DeleteObject, hBmpObj
+	invoke BitBlt, Dc, ebx, eax, bWidth, bHeight, hDcPlayer, 0, 0, SRCAND
 	invoke DeleteDC, hDcPlayer
+	invoke DeleteObject, hBmpObj
 
 	ret
 DrawPlayer ENDP
