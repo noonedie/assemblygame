@@ -30,12 +30,13 @@ DrawGND PROC, Dc:DWORD, gnd:DWORD
 DrawGND ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
+DrawWall PROC, @Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 	LOCAL start_x
 	LOCAL start_y
 	LOCAL end_x
 	LOCAL end_y
 	LOCAL hBrush
+	LOCAL hOld
 	
 	pushad
 
@@ -53,9 +54,11 @@ DrawWall PROC, Dc:DWORD, Height:DWORD, Wid:DWORD, Pos:DWORD, GNDPOS:DWORD
 
 	invoke CreateSolidBrush, BLACK_BRUSH
 	mov hBrush, eax
-	invoke SelectObject, Dc, hBrush
-	invoke DeleteObject, eax
-	invoke Rectangle, Dc, start_x, start_y, end_x, end_y
+	invoke SelectObject, @Dc, hBrush
+	mov hOld, eax
+	invoke Rectangle, @Dc, start_x, start_y, end_x, end_y
+	invoke SelectObject, @Dc, hOld
+	invoke DeleteObject, hBrush
 	popad
 	ret
 DrawWall ENDP
