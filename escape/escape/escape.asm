@@ -25,6 +25,8 @@ personJumpTime DWORD playerNum    DUP(0) ;玩家跳到空中的时间
 gndPos     DWORD	playerNum	DUP(?) ;地面的信息
 wallPos	   DWORD	wallNum*playerNum		DUP(?) ;墙的水平位置信息
 wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
+
+goldPos	   DWORD    goldNum DUP(0) 
 ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
@@ -35,6 +37,7 @@ scoreInfo  BYTE		20	DUP(0)			;转成字符串格式的得分值
 len		   DWORD	0					;转成字符串的数字的实际格式
 
 ;pydata
+gold	   DWORD    goldNum DUP(0)		;0表示不显示,1表示显示
 ScoreFile  BYTE     "score.txt",0		;最高得分
 sBuffer    BYTE		10 DUP(0)		;读取最高分的缓冲区
 readLength DWORD	0
@@ -335,7 +338,24 @@ DrawPlayProc PROC, hWnd:HWND
 ;Draw wall
 ;********************************************************************
 	invoke DrawAllWall, Dc
+;********************************************************************
+;Draw gold
+	mov bmp, GOLD
+	pusha 
+	mov ecx, goldNum
+	mov eax, ecx
 
+GOLD1:
+	push ecx
+	.if ecx < 4 && gold[ecx*4-4] == 1; 上面的金币
+		invoke DrawPlayer, hInstance, Dc, goldPos[ecx*4-4], wallMaxHeight+goldUp, gndPos, bmp, goldWidth, goldHeight
+	.elseif gold[ecx*4-4] == 1
+		invoke DrawPlayer, hInstance, Dc, goldPos[ecx*4-4], wallMaxHeight+goldUp, gndPos+4, bmp, goldWidth, goldHeight 
+	.endif
+	pop ecx
+	loop GOLD1
+	popa
+;********************************************************************
 ;Draw player
 ;********************************************************************
 	.if death == 1
@@ -439,6 +459,14 @@ _init PROC
 	mov readLength, 0
 	mov writeLength, 0
 	mov ecx, wallNum*playerNum
+
+	pusha
+	mov ecx, goldNum
+CG:
+	mov goldPos[ecx*4-4],0
+	mov gold[ecx*4-4], 0
+		loop CG
+	popa
 L1:
 	mov wallPos[ecx*4-4], 0
 	mov wallHeight[ecx*4-4], 0
@@ -476,7 +504,7 @@ _init ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 getNextState PROC, hWnd:DWORD
 ;逻辑代码安排在这部分
-LOCAL wallInx:DWORD, personInx:DWORD
+LOCAL wallInx:DWORD, personInx:DWORD, goldInx:DWORD
 ;-------------------------------------------------
 ;generate wall randomly
 ;-------------------------------------------------	
@@ -489,6 +517,29 @@ LOCAL wallInx:DWORD, personInx:DWORD
 	mov wallInx, 0
 	mov ecx, wallNum
 	add ecx, wallNum
+
+	push ecx
+	mov ecx,goldNum
+GR1:
+	push ecx
+	mov eax, goldNum
+	sub eax, ecx
+	mov ebx, eax
+	.IF goldPos[ebx*4] <= 8
+		invoke randomGenerate, randomSeed
+		mov eax, randomSeed
+		mov edx, 0
+		mov ecx, winWidth
+		div ecx
+		add edx, winWidth
+		mov goldPos[ebx*4], edx
+		mov gold[ebx*4], 1
+	.ELSE
+		sub goldPos[ebx*4], goldSpeed
+	.ENDIF
+	pop ecx
+	loop GR1
+	pop ecx
 W1:
 	push ecx
 	mov eax, wallNum
@@ -563,8 +614,6 @@ DANDM:
 	.IF wallInx < 3
 		;和第一个人进行碰撞检测
 
-
-
 		mov ebx, playerPos[0]
 		mov edx, pPos
 		mov ecx, pPos
@@ -605,6 +654,33 @@ DANDM:
 TEMP3:
 	jmp DANDM
 TEMP4:
+
+;-------------------------------------------------------------
+;检测是否吃到金币
+	pusha
+	mov ecx, goldNum
+GTEMP:
+	push ecx
+	.if ecx > 3
+		mov eax, 1;第二个人
+	.else
+		mov eax, 0;第一个人
+	.endif
+	mov ebx, playerPos[eax*4]
+	mov edx, pPos
+	mov eax, ecx
+	mov ecx, pPos
+	sub ecx, playerWidth
+	add edx, goldWidth 
+	dec eax
+	.IF gold[eax*4] == 1 && edx > goldPos[eax*4] && ecx < goldPos[eax*4] && ebx <= (wallMaxHeight+goldUp+goldHeight) &&  ebx >= (wallMaxHeight+goldUp-goldHeight-pHeight)
+			add score, goldScore
+			mov gold[eax*4], 0		;金币消失
+	.ENDIF
+	pop ecx
+	dec ecx
+	jne GTEMP
+	popa
 
 ;move person
 ;-------------------------------------------------------------
