@@ -35,8 +35,16 @@ scoreInfo  BYTE		20	DUP(0)			;转成字符串格式的得分值
 len		   DWORD	0					;转成字符串的数字的实际格式
 
 ;pydata
+ScoreFile  BYTE     "score.txt",0		;最高得分
+sBuffer    BYTE		10 DUP(0)		;读取最高分的缓冲区
+readLength DWORD	0
+writeLength DWORD	0
+fileHandle DWORD    0 
 isScore    DWORD  playerNum	DUP(0)	;本次跳跃是否得分过	
 score	   DWORD 0					;用户得分
+		   BYTE  0
+highScore  DWORD 0
+		   BYTE 0
 char	   WPARAM 20h
 Click_X	   DWORD  0					;点击的x坐标
 Click_Y    DWORD  0					;点击的y坐标
@@ -184,8 +192,18 @@ _WinMain	proc
 		invoke	UpdateWindow,hWinMain
 		invoke SetTimer, hWinMain, TIMERID,FREQUENCY,NULL
 ;********************************************************************
-; 初始化数据
+; 初始化数据,读取最高分
 ;********************************************************************
+		
+		INVOKE CreateFile, 
+			ADDR ScoreFile, 
+			GENERIC_WRITE+GENERIC_READ,
+			0,
+			NULL,
+			OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			0
+		mov fileHandle, eax
 		invoke _init
 
 ;********************************************************************
@@ -351,12 +369,30 @@ DrawPlayProc PROC, hWnd:HWND
 		invoke DrawPlayer, hInstance, Dc, pPos, playerPos+4, gndPos+4, bmp, pWidth, pHeight
 	.endif	
 
-	invoke scoreTrans
+	invoke scoreTrans,score
 	.if death != 1	
 		invoke TextOut,Dc, 400, 10, ADDR string, LENGTHOF string
 		invoke TextOut,Dc, 450, 10, ADDR scoreInfo, len
-	.else
-		invoke TextOut,Dc, 280, 158, ADDR scoreInfo, len
+	.else ;取出最高得分，统计最高得分
+		invoke TextOut,Dc, 280, 161, ADDR scoreInfo, len
+		INVOKE ReadFile, fileHandle, OFFSET highScore, 4, ADDR readLength, NULL
+		invoke SetFilePointer, fileHandle, 0, 0, FILE_BEGIN
+		push eax
+		mov eax, highScore
+		.if readLength == 0 || eax < score
+			invoke WriteFile,
+				fileHandle,
+				OFFSET score,
+				4,
+				ADDR writeLength,
+				NULL
+			invoke SetFilePointer, fileHandle, 0, 0, FILE_BEGIN
+			invoke TextOut,Dc, 280, 206, ADDR scoreInfo, len	
+		.else
+			invoke scoreTrans, highScore	
+			invoke TextOut,Dc, 280, 206, ADDR scoreInfo, len	
+		.endif
+		pop eax
 	.endif
 
 	invoke BitBlt, @hDC, 0, 0, winWidth, winHeight, Dc, 0, 0, SRCCOPY 
@@ -400,7 +436,8 @@ _init PROC
 	mov gndPos+4, winHeight - 100
 	mov ring, 0
 	mov death, 0
-
+	mov readLength, 0
+	mov writeLength, 0
 	mov ecx, wallNum*playerNum
 L1:
 	mov wallPos[ecx*4-4], 0
@@ -639,9 +676,9 @@ getNextState ENDP
 
 ;transfer score to scoreString
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-scoreTrans	PROC
+scoreTrans	PROC, myScore:DWORD
 	pushad
-	mov eax, score
+	mov eax, myScore
 	mov ecx, 0
 	mov ebx, 10
 L1:
