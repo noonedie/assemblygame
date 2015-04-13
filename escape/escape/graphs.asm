@@ -89,4 +89,32 @@ DrawPlayer PROC, hInst:DWORD, Dc:DWORD, PlayerPosX:DWORD, PlayerPosY:DWORD, GNDP
 	ret
 DrawPlayer ENDP
 
+AddMask PROC, DC: DWORD, left:DWORD, top:DWORD, right:DWORD, bottom:DWORD
+	LOCAL hDcMask:DWORD
+	LOCAL hBmp:DWORD
+	LOCAL rect_width:DWORD
+	LOCAL rect_height:DWORD
+	LOCAL hBrush:DWORD
+
+	invoke CreateCompatibleDC, DC
+	mov hDcMask, eax
+	mov eax, right
+	sub eax, left
+	mov rect_width, eax
+	mov eax, bottom
+	sub eax, top
+	mov rect_height, eax
+
+	invoke CreateCompatibleBitmap, DC, rect_width, rect_height
+	mov hBmp, eax
+	invoke SelectObject, hDcMask, hBmp
+	invoke CreateSolidBrush, 0ff0fh
+	mov hBrush, eax
+	invoke SelectObject, hDcMask, hBrush
+	invoke Rectangle, hDcMask, 0, 0, rect_width, rect_height
+	invoke BitBlt, DC, left, top, rect_width, rect_height, hDcMask, 0, 0, SRCAND
+	
+	ret
+AddMask ENDP
+
 end

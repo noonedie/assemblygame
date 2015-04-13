@@ -66,7 +66,7 @@ bmp			DWORD	0
 	closeTextBGM			db			"close bgm",0
 	pauseTextBGM			db			"pause bgm",0
 	BGMName					db			"open backgroud_music.mp3 alias bgm", 0
-	jumpSound				db		    "jump_music.wav",0
+	jumpSound				db		    "open jump.mp3 alias bgm",0
 	dieSound				db			"open die_music.mp3 alias bgm", 0
 ;end data
 
@@ -113,6 +113,8 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 		.IF uMsg == WM_TIMER
 			invoke getNextState, hWnd
 			invoke Draw, hWnd
+			invoke getMousePos, hWnd
+			invoke processMouseMove
 ;********************************************************************
 		.elseif	eax ==	WM_CLOSE
 			invoke KillTimer,hWnd,ID_Timer
@@ -122,31 +124,12 @@ _ProcWinMain	proc	uses ebx edi esi hWnd,uMsg,wParam,lParam
 		.elseif	eax ==	WM_CHAR
 			push wParam
 			pop char
-			invoke	keydown_Proc, hWnd
-
+			invoke	keydown_Proc, hWnd			
 ;********************************************************************
 ;		.elseif	eax ==	WM_KEYDOWN 
 ;			invoke	keydown_Proc, hWnd
 ;********************************************************************
 		.elseif eax == WM_LBUTTONDOWN					;鼠标事件
-			invoke GetWindowRect, hWnd, ADDR @stRect
-			invoke GetCursorPos, ADDR @stPos
-			
-			;获取鼠标点击的x坐标
-			mov edx, @stPos.x
-			sub edx, @stRect.left
-			mov Click_X, edx
-			.if Click_X > winWidth
-				mov Click_X, 0
-			.endif
-		
-			;获取鼠标点击的y坐标
-			mov edx, @stPos.y
-			sub edx, @stRect.top
-			mov Click_Y, edx
-			inc eax
-			;鼠标事件处理
-			;invoke	  MessageBox, 0, ADDR Click_X, ADDR Click_Y, MB_YESNOCANCEL+MB_ICONEXCLAMATION+MB_DEFBUTTON2 
 			invoke processMouseEvent
 
 ;********************************************************************
@@ -239,6 +222,63 @@ MainMenu:
 	.endif
 	ret
 Draw ENDP
+
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+getMousePos PROC, hWnd:DWORD
+	local	@stRect:RECT
+	local   @stPos:POINT
+
+	invoke GetWindowRect, hWnd, ADDR @stRect
+	invoke GetCursorPos, ADDR @stPos
+	
+	;获取鼠标点击的x坐标
+	mov edx, @stPos.x
+	sub edx, @stRect.left
+	mov Click_X, edx
+	.if Click_X > winWidth
+		mov Click_X, 0
+	.endif
+	
+	;获取鼠标点击的y坐标
+	mov edx, @stPos.y
+	sub edx, @stRect.top
+	mov Click_Y, edx
+	inc eax	
+	ret
+getMousePos ENDP
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+processMouseMove PROC
+	pusha
+	.if scene == 0 ;主菜单界面
+		invoke clickPosition, 140,164,413,243
+		.if eax == 1
+			invoke AddMask, @hDC, 140,164,413,243
+		.endif
+		invoke clickPosition, 140,273,413,349
+		.if  eax == 1
+			invoke AddMask, @hDC,140,273,413,349
+		.endif
+	.elseif scene == 1
+		.if death == 1;死亡界面的处理
+			invoke clickPosition, 165, 310, 250, 335
+			.if eax == 1;点击了“重新开始”
+				invoke AddMask, @hDC,165, 310, 250, 335
+			.endif
+			invoke clickPosition, 330, 310, 435, 335
+			.if eax == 1;点击了“返回主菜单”
+				invoke AddMask, @hDC,330, 310, 435, 335
+			.endif
+		.endif	
+	.elseif scene == 2;帮助界面
+		invoke clickPosition, 365,320,480,360
+		.if eax == 1
+			invoke AddMask, @hDC,365,320,480,360
+		.endif
+	.endif
+	popa
+	ret
+processMouseMove ENDP
+
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 processMouseEvent PROC
