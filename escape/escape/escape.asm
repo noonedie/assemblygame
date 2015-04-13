@@ -28,6 +28,7 @@ wallHeight DWORD	wallNum*playerNum		DUP(?) ;墙的高度信息
 ring	   DWORD    0					;人物动作标志
 death	   DWORD	0					;死亡标志 
 randomSeed DWORD    0  ;随机数种子
+freq	   DWORD	0  ;更新的间隔
 
 ;score data
 string	   BYTE		'Score:'			;提示字符串
@@ -190,7 +191,6 @@ _WinMain	proc
 		mov	hWinMain,eax
 		invoke	ShowWindow,hWinMain,SW_SHOWNORMAL
 		invoke	UpdateWindow,hWinMain
-		invoke SetTimer, hWinMain, TIMERID,FREQUENCY,NULL
 ;********************************************************************
 ; 初始化数据,读取最高分
 ;********************************************************************
@@ -205,7 +205,10 @@ _WinMain	proc
 			0
 		mov fileHandle, eax
 		invoke _init
-
+;********************************************************************
+;设置定时器
+;********************************************************************
+		invoke SetTimer, hWinMain, TIMERID,freq,NULL
 ;********************************************************************
 ; 消息循环
 ;********************************************************************
@@ -456,6 +459,7 @@ L2:
 	mov die_action, 0
 	mov gameover, 0
 	mov scene, 0
+	mov freq, FREQUENCY
 
 	INVOKE GetTickCount
 	mov randomSeed, eax
@@ -655,6 +659,23 @@ PM:
 	dec ecx
 	jnz PM
 
+;*******************************************************************
+;提高速度
+;*******************************************************************
+	.if isScore[0] == 1 || isScore[4] == 1
+		mov eax, score
+		mov edx, 0
+		mov ebx, 10
+		div ebx
+		.if edx == 0 && freq > 10
+			sub freq, 5
+			invoke KillTimer, hWnd, TIMERID
+			invoke SetTimer, hWnd, TIMERID, freq, NULL
+			mov isScore[0], 0
+			mov isScore[1], 0
+		.endif
+	.endif
+
 	.if ring == 0
 		mov ring, 1
 	.elseif ring == 1
@@ -717,6 +738,8 @@ keydown_Proc PROC, hWnd:DWORD
 	.IF char == ' ' && death == 1
 		invoke _init
 		mov scene, 1
+		invoke KillTimer, hWnd, TIMERID
+		invoke SetTimer, hWnd, TIMERID, freq, NULL
 	.ENDIF
 	;测试代码
 ;********************************************************************
