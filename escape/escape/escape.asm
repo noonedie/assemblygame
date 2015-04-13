@@ -668,7 +668,7 @@ PM:
 		mov ebx, 10
 		div ebx
 		.if edx == 0 && freq > 10
-			sub freq, 5
+			sub freq, 1
 			invoke KillTimer, hWnd, TIMERID
 			invoke SetTimer, hWnd, TIMERID, freq, NULL
 			mov isScore[0], 0
