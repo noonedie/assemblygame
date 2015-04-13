@@ -14,3 +14,6 @@ DrawPlayProc PROTO, hWnd:HWND
 DrawHelp PROTO, hWnd:HWND
 DrawAllWall PROTO, Dc:DWORD
 scoreTrans PROTO, myScore:DWORD
+AddMask PROTO, DC: DWORD, left:DWORD, top:DWORD, right:DWORD, bottom:DWORD
+processMouseMove PROTO
+getMousePos PROTO, hWNd:DWORD
