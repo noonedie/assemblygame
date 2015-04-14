@@ -103,6 +103,7 @@
     <Image Include="die3.bmp" />
     <Image Include="die4.bmp" />
     <Image Include="gameover.bmp" />
+    <Image Include="gold.bmp" />
     <Image Include="help.bmp" />
     <Image Include="mainmenu.bmp" />
     <Image Include="people_1.bmp" />
