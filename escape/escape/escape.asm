@@ -68,9 +68,15 @@ bmp			DWORD	0
 	playOneTime				db			"play bgm",0 
 	closeTextBGM			db			"close bgm",0
 	pauseTextBGM			db			"pause bgm",0
+	playGoldText			db			"play eatGold.mp3",0
 	BGMName					db			"open backgroud_music.mp3 alias bgm", 0
 	jumpSound				db		    "open jump.mp3 alias bgm",0
 	dieSound				db			"open die_music.mp3 alias bgm", 0
+	testSound				db			"open dzq,mp3 alias test",0
+	openGold				db			"open eatGold.mp3 alias eat",0
+	playGold				db			"play eat",0
+	pauseGold				db			"pause eat",0
+	closeGold				db          "close eat",0
 ;end data
 
 .data?
@@ -493,8 +499,11 @@ DrawHelp ENDP
 
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 _init PROC
+	invoke mciSendString, ADDR openGold,NULL,0,NULL
 	INVOKE mciSendString,ADDR BGMName, NULL, 0, NULL
+
 	INVOKE mciSendString,ADDR playTextBGM, NULL, 0, NULL
+	;invoke mciSendString, ADDR playText,NULL,0,NULL
 	mov gndPos, (winHeight - 100)/2
 	mov gndPos+4, winHeight - 100
 	mov ring, 0
@@ -720,6 +729,9 @@ GTEMP:
 	.IF gold[eax*4] == 1 && edx > goldPos[eax*4] && ecx < goldPos[eax*4] && ebx <= (wallMaxHeight+goldUp+goldHeight) &&  ebx >= (wallMaxHeight+goldUp-goldHeight-pHeight)
 			add score, goldScore
 			mov gold[eax*4], 0		;½ð±ÒÏûÊ§
+			invoke mciSendString,ADDR closeGold, NULL,0,NULL
+			invoke mciSendString,ADDR openGold, NULL,0,NULL
+			invoke mciSendString,ADDR playGold, NULL,0,NULL
 	.ENDIF
 	pop ecx
 	dec ecx
